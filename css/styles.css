@@ -1,0 +1,205 @@
+:root {
+    --background-dark-color: rgba(83, 48, 189, 0.58);
+    --background-light-color: #d1c0ff;
+    --button-hover: rgba(231, 79, 135, 0.959);
+    --button-on: #ea407f;
+    --font-dark-color: #000;
+    --font-light-color: #efefef;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    outline: none;
+    border: 0;
+    font-family: monospace;
+    color: var(--font-dark-color);
+}
+
+body {
+    background: var(--background-dark-color);
+    padding: 2vw;
+}
+
+main {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    max-width: 1500px;
+    min-height: 100vh;
+    margin: auto;
+    text-align: center;
+}   
+
+section {
+    width: 100%;
+    max-width: 500px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+section#master article {
+    min-height: 250px;
+}
+
+section#presets article {
+    min-height: 150px;
+    max-width: 100%;
+}
+
+section#lfo-config {
+    flex-direction: row;
+}
+
+article {
+    background: var(--background-light-color);
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border: 1px solid var(--font-dark-color);
+    margin: 4px;
+    padding: 4px;
+}
+
+h1, label, button {
+    margin: 10px;
+}
+
+h1 {
+    font-size: 22px;
+}
+
+button {
+    width: 200px;
+    max-width: 100%;
+    font-size: 14px;
+    padding: 4px;
+    border: 1px solid var(--font-dark-color);
+}
+button:hover:not(:disabled) {
+    background: var(--button-hover);
+}
+
+button.on {
+    background: var(--button-on);
+}
+
+label {
+    width: 100%;
+    display: block;
+}
+
+input,
+select,
+option,
+button:not(:disabled)  {
+    cursor: pointer;
+}
+
+input[type="range"] {
+    display: block;
+    width: 100%;
+}
+
+p#preset,
+p#audio-params {
+    font-size: 80%;
+    max-width: 100%;
+    overflow-x: auto;
+}
+
+a#download-preset {
+    color: var(--font-dark-color);
+    background: var(--button-on);
+    display: block;
+    margin-top: 8px;
+    font-size: 14px;
+}
+
+a#download-preset:hover {
+    color: var(--font-light-color);
+}
+
+a#download-preset.hidden {
+    display: none;
+}
+
+article#load-preset label {
+    position: relative;
+    width: 200px;
+    height: 27px;
+    cursor: pointer;
+}
+
+article#load-preset label:hover button:not(:disabled){
+    background: var(--button-hover);
+}
+
+#load-preset-btn {
+    position: absolute;
+    margin: 0;
+    left: 0;
+    cursor: pointer;
+}
+
+#preset-file {
+    opacity: 0;
+    width: 100%;
+    cursor: pointer;
+}
+
+
+footer {
+    padding: 8px;
+    text-align: center;
+    color: var(--font-light-color);
+}
+
+footer a {
+    color: var(--font-light-color);
+    font-size: 16px;
+}
+
+article#envelope label {
+    font-size: 12px;
+    margin: 5px;
+}
+
+.disabled {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+@media (max-width: 1000px) and (min-width: 768px) {
+    #create-audioctx-btn,
+    #enable-eg-btn {
+        width: 130px;
+    }
+}
+
+@media (min-width: 1000px) {
+    section {
+        flex-direction: row;
+        max-width: none;
+    }
+
+    p#preset,
+    p#audio-params {
+        font-size: 90%;
+    }
+
+    #evelope-info {
+        display: none;
+    }
+}
+
+/* hide envelope */
+#envelope,
+#activate-eg-btn,
+#evelope-info {
+    display: none;
+}
