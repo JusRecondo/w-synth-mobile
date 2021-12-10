@@ -63,6 +63,8 @@ const midiMapMessage = document.querySelector("#midiMapMessage");
 function onMIDIMessage(message) {
     let frequency = midiNoteToFrequency(message.data[1]).toFixed(2);
 
+    /* console.log(message.data); */
+
     /* MIDI notes */
     if (synth.audioCtx) {
         /* 144 midi message for noteOn */
@@ -70,10 +72,10 @@ function onMIDIMessage(message) {
             playNote(frequency);
         }
 
-        /* 128 midi message fot noteOff */
+        /* 128 midi message for noteOff */
         if (
             message.data[0] === 128 &&
-            message.data[2] === 0 &&
+            /* message.data[2] === 0 && */
             audioParams.ADSR.active === true
         ) {
             noteOff(frequency);
