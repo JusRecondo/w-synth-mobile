@@ -73,14 +73,17 @@ h1 {
     font-size: 22px;
 }
 
-button {
+button,
+input[type="submit"] {
     width: 200px;
     max-width: 100%;
     font-size: 14px;
     padding: 4px;
     border: 1px solid var(--font-dark-color);
 }
-button:hover:not(:disabled) {
+
+button:hover:not(:disabled),
+input[type="submit"]:hover {
     background: var(--button-hover);
 }
 
@@ -135,7 +138,7 @@ article#load-preset label {
     cursor: pointer;
 }
 
-article#load-preset label:hover button:not(:disabled){
+article#load-preset label:hover button:not(:disabled) {
     background: var(--button-hover);
 }
 
@@ -174,6 +177,25 @@ article#envelope label {
     pointer-events: none;
 }
 
+form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+input#midiCC {
+    margin-top: 8px;
+}
+
+input#midiCC {
+    border: 1px solid var(--font-dark-color);
+    width: 50px;
+}
+
+p#midiWarning {
+    margin-top: 8px;
+}
+
 @media (max-width: 1000px) and (min-width: 768px) {
     #create-audioctx-btn,
     #enable-eg-btn {
@@ -195,11 +217,4 @@ article#envelope label {
     #evelope-info {
         display: none;
     }
-}
-
-/* hide envelope */
-#envelope,
-#activate-eg-btn,
-#evelope-info {
-    display: none;
 }

@@ -30,18 +30,17 @@
                     0N - OFF
                 </button>
                 <label>
-                    Master volume
+                    Master gain
                     <input id="master-gain-fader" class="gain-fader" type="range" min="0" max="0.5" step="0.01" value="0" >
                     <span>0.00</span>
                 </label>
-                <!-- hidden on mobile-->
+
                 <button id="activate-eg-btn">
-                    Activar envolvente
+                    Envelope ON - OFF
                  </button>
-                  <!-- hidden on mobile-->
-                <p id="evelope-info">En caso de estar en un dispositivo móvil, no activar la envolvente a menos que se conecte un controlador midi.</p> 
+    
+                <p id="evelope-info">Activar envolvente solo cuando se conecta un controlador midi que envía notas/Enable envelope only when a MIDI controller is connected.</p> 
             </article>
-             <!-- hidden on mobile-->
             <article id="envelope" class="disabled">
                 <h2>Envelope</h2>
 
@@ -130,12 +129,12 @@
                     </select>  
                 </label>
                 <label>
-                    Volumen
+                    Gain
                     <input class="gain-fader" type="range" min="0" max="0.5" step="0.01" value="0" disabled>
                     <span>0.00</span>
                 </label>
                 <label>
-                    Frecuencia
+                    Freq
                     <input class="freq-fader" type="range" min="40" max="1000" step="0.1" value="200" disabled>
                     <span>200 Hz</span>
                 </label>
@@ -156,12 +155,12 @@
                     </select>  
                 </label>
                 <label>
-                    Volumen
+                    Gain
                     <input class="gain-fader" type="range" min="0" max="0.5" step="0.01" value="0" disabled>
                     <span>0.00</span>
                 </label>
                 <label>
-                    Frecuencia
+                    Freq
                     <input class="freq-fader" type="range" min="40" max="1000" step="0.1" value="200" disabled>
                     <span>200 Hz</span>
                 </label>
@@ -182,12 +181,12 @@
                     </select>  
                 </label>
                 <label>
-                    Volumen
+                    Gain
                     <input class="gain-fader" type="range" min="0" max="0.5" step="0.01" value="0" disabled>
                     <span>0.00</span>
                 </label>
                 <label>
-                    Frecuencia
+                    Freq
                     <input class="freq-fader" type="range" min="40" max="1000" step="0.1" value="200" disabled>
                     <span>200 Hz</span>
                 </label>
@@ -213,19 +212,49 @@
                 <label><button id="load-preset-btn">Upload preset</button>
                     <input type="file" id="preset-file" name="preset-file" accept=".json">
                 </label>
-                <p>Load .json file</p>
+                <p>Open or drag .json file</p>
                 <p id="preset"></p>
             </article>
         </section>
         <section>
             <article id="midi">
-                <h3>MIDI Config - <span id="midi-info">No device connected</span></h3>
-                <p>MIDI notes<br>
-                   CC7 Filter Cut Off |
-                   CC10 Filter Resonance |
-                   CC11 LFO Rate |
-                   CC91 LFO Amount |
-                </p>
+                <h3>MIDI Config</h3>
+                <br>
+                <span id="midi-info">No device connected</span>
+                <br>
+                <h3>MIDI CC Mapping</h3>
+                <span id="midiMapMessage"></span>
+                <form id="midiMapConfig">
+                    <label>Midi destination
+                        <select name="midiDestination" id="midiDestination" required>
+                            <option value="Master Gain">Master Gain</option>                       
+                            <option value="Filter Cut">Filter Cut</option>
+                            <option value="Filter Res">Filter Res</option>
+                            <option value="LFO Rate">LFO Rate</option>
+                            <option value="LFO Amount">LFO Amount</option>
+                            <option value="OSC I Gain">OSC I Gain</option>
+                            <option value="OSC I Freq">OSC I Freq</option>
+                            <option value="OSC II Gain">OSC II Gain</option>
+                            <option value="OSC II Freq">OSC II Freq</option>
+                            <option value="OSC III Gain">OSC III Gain</option>
+                            <option value="OSC III Freq">OSC III Freq</option>
+                        </select>
+                    </label>    
+                    <label>Midi CC (move your controller's knob/fader)
+                       <input type="text" name="midiCC" id="midiCC" required>
+                    </label>
+                        <input type="submit" value="Assign">
+                    </label>
+                </form>
+
+                <p id="midiWarning" hidden></p>
+                <button id="clearCC" hidden>Clear</button>
+
+                <button id="clearAllMidi">
+                    Clear All MIDI config
+                </button>
+                <button id="confirm" hidden>Confirm</button>
+                <button id="cancel" hidden>Cancel</button>
             </article>
         </section>
 
@@ -236,6 +265,6 @@
         <a href="https://github.com/JusRecondo/wsynth2.0" target="_blank">GitHub</a>
     </footer>
     <script src="js/synth.js"></script>
-    <script src="js/keyboard.js"></script>
+    <script src="js/midi.js"></script>
 </body>
 </html>
