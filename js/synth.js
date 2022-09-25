@@ -1,25 +1,29 @@
-const audioCtxOnBtn = document.querySelector("#create-audioctx-btn");
+const audioCtxOnBtn = document.querySelector('#create-audioctx-btn');
 //Oscillators
-const gainFaders = document.querySelectorAll(".gain-fader");
-const freqFaders = document.querySelectorAll(".freq-fader");
-const detuneFader = document.querySelector(".detune-fader");
-const transposeFaders = document.querySelectorAll(".transpose-fader");
-const oscWaveSelect = document.querySelectorAll(".osc-wave");
+const gainFaders = document.querySelectorAll('.gain-fader');
+const freqFaders = document.querySelectorAll('.freq-fader');
+const detuneFader = document.querySelector('.detune-fader');
+const transposeFaders = document.querySelectorAll('.transpose-fader');
+const oscWaveSelect = document.querySelectorAll('.osc-wave');
 //Filter
-const filterType = document.querySelector("#filter-type");
-const filterC = document.querySelector("#filter-cutoff");
-const filterR = document.querySelector("#filter-res");
+const filterType = document.querySelector('#filter-type');
+const filterC = document.querySelector('#filter-cutoff');
+const filterR = document.querySelector('#filter-res');
 //Presets
-const savePresetBtn = document.querySelector("#save-preset");
-const uploadPresetFile = document.querySelector("#preset-file");
+const savePresetBtn = document.querySelector('#save-preset');
+const uploadPresetFile = document.querySelector('#preset-file');
 //LFO
 const lfoMod = document.querySelectorAll('[name="lfo-mod"]');
-const lfoWave = document.querySelector("#lfo-wave");
-const lfoRate = document.querySelector("#lfo-rate");
-const lfoAmt = document.querySelector("#lfo-amt");
-const modOsc1 = document.querySelector("#mod-osc1");
-const modOsc2 = document.querySelector("#mod-osc2");
-const modFilter = document.querySelector("#mod-filter");
+const lfoWave = document.querySelector('#lfo-wave');
+const lfoRate = document.querySelector('#lfo-rate');
+const lfoAmt = document.querySelector('#lfo-amt');
+const modOsc1 = document.querySelector('#mod-osc1');
+const modOsc2 = document.querySelector('#mod-osc2');
+const modFilter = document.querySelector('#mod-filter');
+const modDelay = document.querySelector('#mod-delay-time');
+//Delay
+const delayTime = document.querySelector('#delay-time');
+const delayFeedback = document.querySelector('#delay-feedback');
 
 const synth = {
     audioCtx: null,
@@ -28,6 +32,7 @@ const synth = {
     filter: null,
     lfo: null,
     lfoGainNode: null,
+    delay: null,
 };
 
 let audioParams = {
@@ -40,27 +45,31 @@ let audioParams = {
         release: 0,
     },
     oscFreqs: [200, 200, 200],
-    oscWaves: ["sine", "sine", "sine"],
+    oscWaves: ['sine', 'sine', 'sine'],
     filter: {
-        type: "lowpass",
+        type: 'lowpass',
         cutoff: 500,
         resonance: 0,
     },
     lfo: {
-        mod: [null, null, null],
-        wave: "sine",
+        mod: [null, null, null, null],
+        wave: 'sine',
         rate: 0,
         amount: 0,
     },
     oscDetune: 0,
     oscTranspose: [0, 0],
+    delay: {
+        time: 0,
+        feedback: 0,
+    },
 };
 
 /*
  * Create audio context and update audio params
  */
 function createAudioCtx() {
-    if (!synth.audioCtx || synth.audioCtx.state === "closed") {
+    if (!synth.audioCtx || synth.audioCtx.state === 'closed') {
         //Create AudioContext & oscillators
         synth.audioCtx = new (window.AudioContext ||
             window.webkitAudioContext)();
@@ -73,6 +82,14 @@ function createAudioCtx() {
                 synth.audioCtx.currentTime
             );
         }
+
+        //Create gain node for delay feedback
+        synth.feedback = synth.audioCtx.createGain();
+        //Delay
+        synth.delay = synth.audioCtx.createDelay(5.0);
+        synth.delay.connect(synth.feedback);
+        synth.feedback.connect(synth.delay);
+        synth.delay.connect(synth.audioCtx.destination);
 
         //Create LFO gain node
         synth.lfoGainNode = synth.audioCtx.createGain();
@@ -95,6 +112,7 @@ function createAudioCtx() {
         for (let i = 0; i < synth.gainNodes.length; i++) {
             if (i === 0) {
                 //gainNode[0] is master
+                synth.gainNodes[i].connect(synth.delay);
                 synth.gainNodes[i].connect(synth.audioCtx.destination);
             } else {
                 synth.gainNodes[i].connect(synth.filter);
@@ -112,14 +130,15 @@ function createAudioCtx() {
         //Start LFO
         synth.lfo.start(synth.audioCtx.currentTime);
 
-        document.querySelectorAll(":disabled").forEach((e) => {
+        document.querySelectorAll(':disabled').forEach(e => {
             e.disabled = false;
         });
 
-        audioCtxOnBtn.classList.add("on");
+        audioCtxOnBtn.classList.add('on');
+        console.log(synth.delay);
     } else {
         synth.audioCtx.close();
-        audioCtxOnBtn.classList.remove("on");
+        audioCtxOnBtn.classList.remove('on');
     }
 }
 
@@ -158,7 +177,7 @@ function updateParams() {
     freqFaders.forEach((e, index) => {
         let freq = e.value;
         audioParams.oscFreqs[index] = freq;
-        e.nextElementSibling.innerText = freq + " Hz";
+        e.nextElementSibling.innerText = freq + ' Hz';
 
         if (synth.audioCtx) {
             synth.oscillators[index].frequency.value = freq;
@@ -168,7 +187,7 @@ function updateParams() {
     //OSC III Detune
     let osc3Detune = detuneFader.value;
     audioParams.oscDetune = osc3Detune;
-    detuneFader.nextElementSibling.innerText = osc3Detune + " cents";
+    detuneFader.nextElementSibling.innerText = osc3Detune + ' cents';
     if (synth.audioCtx) {
         synth.oscillators[2].detune.value = osc3Detune;
     }
@@ -179,31 +198,31 @@ function updateParams() {
         audioParams.oscTranspose[index] = parseInt(e.value);
 
         let intervals = {
-            "-1200": "-8th",
-            "-1100": "-M7th",
-            "-1000": "-m7th",
-            "-900": "-M6th",
-            "-800": "-m6th",
-            "-700": "-5th",
-            "-600": "-aug4th",
-            "-500": "-4th",
-            "-400": "-M3rd",
-            "-300": "-m3rd",
-            "-200": "-M2nd",
-            "-100": "-m2nd",
-            0: "0",
-            1200: "8th",
-            1100: "M7th",
-            1000: "m7th",
-            900: "M6th",
-            800: "m6th",
-            700: "5th",
-            600: "aug4th",
-            500: "4th",
-            400: "M3rd",
-            300: "m3rd",
-            200: "M2nd",
-            100: "m2nd",
+            '-1200': '-8th',
+            '-1100': '-M7th',
+            '-1000': '-m7th',
+            '-900': '-M6th',
+            '-800': '-m6th',
+            '-700': '-5th',
+            '-600': '-aug4th',
+            '-500': '-4th',
+            '-400': '-M3rd',
+            '-300': '-m3rd',
+            '-200': '-M2nd',
+            '-100': '-m2nd',
+            0: '0',
+            1200: '8th',
+            1100: 'M7th',
+            1000: 'm7th',
+            900: 'M6th',
+            800: 'm6th',
+            700: '5th',
+            600: 'aug4th',
+            500: '4th',
+            400: 'M3rd',
+            300: 'm3rd',
+            200: 'M2nd',
+            100: 'm2nd',
         };
 
         e.nextElementSibling.innerText = intervals[semitones];
@@ -229,7 +248,7 @@ function updateParams() {
         synth.filter.Q.value = res;
     }
 
-    filterC.nextElementSibling.innerText = cut + " Hz";
+    filterC.nextElementSibling.innerText = cut + ' Hz';
     filterR.nextElementSibling.innerText = res;
 
     //LFO
@@ -259,6 +278,9 @@ function updateParams() {
         if (audioParams.lfo.mod[2]) {
             synth.lfoGainNode.connect(synth.oscillators[1].frequency);
         }
+        if (audioParams.lfo.mod[3]) {
+            synth.lfoGainNode.connect(synth.delay.delayTime);
+        }
     }
 
     audioParams.lfo.wave = LFOWave;
@@ -272,11 +294,25 @@ function updateParams() {
         synth.lfoGainNode.gain.value = LFOAmt;
         lfoAmt.nextElementSibling.innerText = LFOAmt;
     }
+
+    //Delay
+    let time = parseFloat(delayTime.value).toFixed(2);
+    delayTime.nextElementSibling.innerText = time;
+    audioParams.delay.time = time;
+    let feedback = parseFloat(delayFeedback.value).toFixed(2);
+    delayFeedback.nextElementSibling.innerText = feedback;
+    audioParams.delay.feedback = feedback;
+
+    if (synth.audioCtx) {
+        synth.delay.delayTime.linearRampToValueAtTime(time, synth.audioCtx.currentTime + 0.1, 0.1);
+        synth.feedback.gain.linearRampToValueAtTime(feedback, synth.audioCtx.currentTime + 0.1, 0.1);
+    }
+
 }
 
 //Update LFO mod
 //mod filter cut
-modFilter.addEventListener("change", function () {
+modFilter.addEventListener('change', function () {
     if (synth.audioCtx) {
         if (this.checked) {
             synth.lfoGainNode.connect(synth.filter.frequency);
@@ -287,7 +323,7 @@ modFilter.addEventListener("change", function () {
 });
 
 //mod osc I pitch
-modOsc1.addEventListener("change", function () {
+modOsc1.addEventListener('change', function () {
     if (synth.audioCtx) {
         if (this.checked) {
             synth.lfoGainNode.connect(synth.oscillators[0].frequency);
@@ -298,7 +334,7 @@ modOsc1.addEventListener("change", function () {
 });
 
 //mod osc II pitch
-modOsc2.addEventListener("change", function () {
+modOsc2.addEventListener('change', function () {
     if (synth.audioCtx) {
         if (this.checked) {
             synth.lfoGainNode.connect(synth.oscillators[1].frequency);
@@ -308,13 +344,24 @@ modOsc2.addEventListener("change", function () {
     }
 });
 
+modDelay.addEventListener('change', function () {
+    if (synth.audioCtx) {
+        if (this.checked) {
+            synth.lfoGainNode.connect(synth.delay.delayTime);
+        } else {
+            synth.lfoGainNode.disconnect(synth.delay.delayTime);
+        }
+    }
+});
+
 //Create audio context
-audioCtxOnBtn.addEventListener("click", createAudioCtx);
+audioCtxOnBtn.addEventListener('click', createAudioCtx);
 //Update params
-document.querySelector("#master-gain").addEventListener("input", updateParams);
-document.querySelector("#filter").addEventListener("input", updateParams);
-document.querySelector("#lfo").addEventListener("input", updateParams);
-document.querySelector("#oscillators").addEventListener("input", updateParams);
+document.querySelector('#master-gain').addEventListener('input', updateParams);
+document.querySelector('#delay').addEventListener('input', updateParams);
+document.querySelector('#filter').addEventListener('input', updateParams);
+document.querySelector('#lfo').addEventListener('input', updateParams);
+document.querySelector('#oscillators').addEventListener('input', updateParams);
 
 /*
  * Presets
@@ -324,8 +371,8 @@ document.querySelector("#oscillators").addEventListener("input", updateParams);
 function uploadPreset(e) {
     let reader = new FileReader();
 
-    reader.addEventListener("load", (e) => {
-        document.querySelector("#preset").innerHTML = e.target.result;
+    reader.addEventListener('load', e => {
+        document.querySelector('#preset').innerHTML = e.target.result;
 
         let preset = JSON.parse(e.target.result);
         audioParams = preset;
@@ -342,16 +389,16 @@ function setParams() {
         e.value = audioParams.gains[i];
     });
 
-    EG.classList = audioParams.ADSR.active === true ? "" : "disabled";
+    EG.classList = audioParams.ADSR.active === true ? '' : 'disabled';
 
     if (audioParams.ADSR.active === true) {
-        EG.classList.remove("disabled");
-        activateEG.classList.add("on");
-        activateEG.innerText = "Desactivar Envolvente";
+        EG.classList.remove('disabled');
+        activateEG.classList.add('on');
+        activateEG.innerText = 'Desactivar Envolvente';
     } else {
-        EG.classList.add("disabled");
-        activateEG.classList.remove("on");
-        activateEG.innerText = "Activar envolvente";
+        EG.classList.add('disabled');
+        activateEG.classList.remove('on');
+        activateEG.innerText = 'Activar envolvente';
     }
 
     A.value = audioParams.ADSR.attack;
@@ -379,7 +426,7 @@ function setParams() {
 
     filterType.value = audioParams.filter.type;
     filterC.value = audioParams.filter.cutoff;
-    filterC.nextElementSibling.innerText = filterC.value + " Hz";
+    filterC.nextElementSibling.innerText = filterC.value + ' Hz';
     filterR.value = audioParams.filter.resonance;
     filterR.nextElementSibling.innerText = filterR.value;
 
@@ -390,29 +437,33 @@ function setParams() {
     modFilter.checked = audioParams.lfo.mod[0] !== null ? true : false;
     modOsc1.checked = audioParams.lfo.mod[1] !== null ? true : false;
     modOsc2.checked = audioParams.lfo.mod[2] !== null ? true : false;
+    modDelay.checked = audioParams.lfo.mod[3] !== null ? true : false;
+
+    delayTime.value = audioParams.delay.time;
+    delayFeedback.value = audioParams.delay.feedback;
 }
 
 //Show params - download user preset
-savePresetBtn.addEventListener("click", function () {
-    document.querySelector("#audio-params").innerHTML =
+savePresetBtn.addEventListener('click', function () {
+    document.querySelector('#audio-params').innerHTML =
         JSON.stringify(audioParams);
 
     const userPreset =
-        "data:text/json;charset=utf-8," +
+        'data:text/json;charset=utf-8,' +
         encodeURIComponent(JSON.stringify(audioParams));
 
-    const downloadLink = document.querySelector("#download-preset");
+    const downloadLink = document.querySelector('#download-preset');
 
-    downloadLink.classList.remove("hidden");
+    downloadLink.classList.remove('hidden');
 
-    downloadLink.addEventListener("click", () => {
-        const presetName = document.querySelector("#preset-name").value;
-        downloadLink.setAttribute("href", userPreset);
-        downloadLink.setAttribute("download", presetName + ".json");
+    downloadLink.addEventListener('click', () => {
+        const presetName = document.querySelector('#preset-name').value;
+        downloadLink.setAttribute('href', userPreset);
+        downloadLink.setAttribute('download', presetName + '.json');
     });
 
-    savePresetBtn.innerText = "Save new preset";
+    savePresetBtn.innerText = 'Save new preset';
 });
 
 //Upload user preset
-uploadPresetFile.addEventListener("change", uploadPreset);
+uploadPresetFile.addEventListener('change', uploadPreset);

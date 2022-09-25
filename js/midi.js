@@ -91,6 +91,18 @@ function onMIDIMessage(message) {
 
     if(midiConfig !== null) {
 
+        //midi to delay time
+        if(midiConfig['Delay Time'] && message.data[1] == midiConfig['Delay Time']) {
+            let midiInput = midiCCMap(message.data[2], 0, 5);
+            midiToDelayTime(midiInput);
+        } 
+
+         //midi to delay feedback
+         if(midiConfig['Delay Feedback'] && message.data[1] == midiConfig['Delay Feedback']) {
+            let midiInput = midiCCMap(message.data[2], 0, 0.8);
+            midiToDelayFeedBack(midiInput);
+        } 
+
         //midi to filter cut
         if(midiConfig['Filter Cut'] && message.data[1] == midiConfig['Filter Cut']) {
             let midiInput = midiCCMap(message.data[2], 100, 12000);
@@ -225,7 +237,7 @@ function getMidiConfig() {
     let synthMIDI = localStorage.getItem('synthMIDI');
     synthMIDI = JSON.parse(synthMIDI);
 
-    return  synthMIDI;
+    return synthMIDI;
 }
 
 /* Clear MIDI config  */
@@ -268,11 +280,10 @@ function midiCCMap(cc, min, max) {
 
 /* Master & Oscillators gains */
 function midiToGains(gainNode, gain) {
+    gainFaders[gainNode].value = gain;
+    gainFaders[gainNode].nextElementSibling.innerText = gain;
+    audioParams.gains[gainNode] = gain;
     if(synth.audioCtx) {
-        audioParams.gains[gainNode] = gain;
-        gainFaders[gainNode].value = gain;
-        gainFaders[gainNode].nextElementSibling.innerText = gain;
-
         synth.gainNodes[gainNode].gain.linearRampToValueAtTime(
             gain,
             synth.audioCtx.currentTime + 0.1
@@ -282,10 +293,10 @@ function midiToGains(gainNode, gain) {
 
 /* OSC frequencies  */
 function midiCCtoOSCFreq(osc, freq) {
+    freqFaders[osc].value = freq;
+    freqFaders[osc].nextElementSibling.innerText = freq + " Hz";
+    audioParams.oscFreqs[osc] = freq;
     if (synth.audioCtx) {
-        audioParams.oscFreqs[osc] = freq;
-        freqFaders[osc].value = freq;
-        freqFaders[osc].nextElementSibling.innerText = freq + " Hz";
         synth.oscillators[osc].frequency.exponentialRampToValueAtTime(
             freq,
             synth.audioCtx.currentTime + 0.1
@@ -295,44 +306,64 @@ function midiCCtoOSCFreq(osc, freq) {
 
 /* filter cut  */
 function midiToFilterC(cut) {
+    filterC.value = cut;
+    filterC.nextElementSibling.innerText = cut + " Hz";
+    audioParams.filter.cutoff = cut;
     if (synth.audioCtx) {
-        filterC.value = cut;
-        filterC.nextElementSibling.innerText = cut + " Hz";
         synth.filter.frequency.exponentialRampToValueAtTime(
             cut,
             synth.audioCtx.currentTime + 0.2
         );
-        audioParams.filter.cutoff = cut;
     }
 }
 
 /*  filter resonance */
 function midiToFilterR(res) {
+    filterR.value = res;
+    filterR.nextElementSibling.innerText = res;
+    audioParams.filter.resonance = res;
     if (synth.audioCtx) {
-        filterR.value = res;
-        filterR.nextElementSibling.innerText = res;
         synth.filter.Q.value = res;
-        audioParams.filter.resonance = res;
     }
 }
 
 /* LFO rate */
 function midiToLFORate(rate) {
+    lfoRate.value = rate;
+    lfoRate.nextElementSibling.innerText = rate;
+    audioParams.lfo.rate = rate;
     if (synth.audioCtx) {
-        lfoRate.value = rate;
         synth.lfo.frequency.value = rate;
-        lfoRate.nextElementSibling.innerText = rate;
-        audioParams.lfo.rate = rate;
     }
 }
 
 /* LFO amt */
 function midiToLFOAmt(amt) {
+    lfoAmt.value = amt;
+    lfoAmt.nextElementSibling.innerText = amt;
+    audioParams.lfo.amount = amt;
     if (synth.audioCtx) {
-        lfoAmt.value = amt;
         synth.lfoGainNode.gain.value = amt;
-        lfoAmt.nextElementSibling.innerText = amt;
-        audioParams.lfo.amount = amt;
+    }
+}
+
+/* Delay Time */
+function midiToDelayTime(time) {
+    delayTime.value = time;
+    audioParams.delay.time = time;
+    delayTime.nextElementSibling.innerText = time;
+    if (synth.audioCtx) {
+        synth.delay.delayTime.linearRampToValueAtTime(time, synth.audioCtx.currentTime + 0.1, 0.1);
+    }
+}
+
+/* Delay Feedback */
+function midiToDelayFeedBack(feedback) {
+    delayFeedback.value = feedback;
+    delayFeedback.nextElementSibling.innerText = feedback;
+    audioParams.delay.feedback = feedback;
+    if (synth.audioCtx) {
+        synth.feedback.gain.linearRampToValueAtTime(feedback, synth.audioCtx.currentTime + 0.1, 0.1);
     }
 }
 

@@ -52,6 +52,7 @@ section#presets article {
 
 section#lfo-config {
     flex-direction: row;
+    align-items: flex-start;
 }
 
 article {
@@ -175,6 +176,10 @@ article#envelope label {
 .disabled {
     opacity: 0.5;
     pointer-events: none;
+}
+
+#envelope.disabled {
+    display: none;
 }
 
 form {

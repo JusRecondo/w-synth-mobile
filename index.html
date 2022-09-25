@@ -11,7 +11,7 @@
     <meta property="og:image"
           content="https://jusrecondo.github.io/w-synth/img/sinte.png">
     <meta property="og:url"
-          content="https://jusrecondo.github.io/w-synth/">
+          content="https://jusrecondo.github.io/w-synth-mobile/">
     <meta property="og:type" content="website">
 
     <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
@@ -37,10 +37,19 @@
 
                 <button id="activate-eg-btn">
                     Envelope ON - OFF
-                 </button>
-    
-                <p id="evelope-info">Activar envolvente solo cuando se conecta un controlador midi que envía notas/Enable envelope only when a MIDI controller is connected.</p> 
+                </button>
             </article>
+
+            <article id="delay">
+                <h2>Delay</h2>
+                <label for="delay-time">Time: </label>
+                <input type="range" id="delay-time" value="0" min="0" max="5" step="0.01" disabled>
+                <span>0</span>
+                <label for="feedback">Feedback: </label>
+                <input type="range" id="delay-feedback" value="0" min="0" max="0.8" step="0.01" disabled>
+                <span>0</span>
+            </article>
+
             <article id="envelope" class="disabled">
                 <h2>Envelope</h2>
 
@@ -105,13 +114,16 @@
                     <label>
                         <input type="checkbox" id="mod-osc2" name="lfo-mod" value="osc2">OSC II
                     </label> 
+                    <label>
+                        <input type="checkbox" id="mod-delay-time" name="lfo-mod" value="delay-time">Delay
+                    </label> 
                 </section>
                 <label>Rate
-                    <input id="lfo-rate" type="range" value="0" min="0.1" max="15" step="0.01" disabled>
+                    <input id="lfo-rate" type="range" value="0" min="0" max="15" step="0.01" disabled>
                     <span>0</span>
                 </label>   
                 <label>Amount
-                    <input id="lfo-amt" type="range" value="0" min="0.5" max="1000" step="0.01" disabled> 
+                    <input id="lfo-amt" type="range" value="0" min="0" max="1000" step="0.01" disabled> 
                     <span>0</span> 
                 </label>                 
             </article>
@@ -228,6 +240,8 @@
                     <label>Midi destination
                         <select name="midiDestination" id="midiDestination" required>
                             <option value="Master Gain">Master Gain</option>                       
+                            <option value="Delay Time">Delay Time</option>
+                            <option value="Delay Feedback">Delay Feedback</option>
                             <option value="Filter Cut">Filter Cut</option>
                             <option value="Filter Res">Filter Res</option>
                             <option value="LFO Rate">LFO Rate</option>
